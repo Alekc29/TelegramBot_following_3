@@ -3,6 +3,7 @@ import contextlib
 import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.methods import DeleteWebhook
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from config import BOT_TOKEN, DEV_ID
@@ -39,6 +40,7 @@ async def start():
         basic.router,
     )
     try:
+        await bot(DeleteWebhook(drop_pending_updates=True))
         await dp.start_polling(bot)
     except Exception as ex:
         logging.error(f'Exception - {ex}', exc_info=True)

@@ -8,11 +8,12 @@ class DataBase:
         self.create_db()
 
     def create_db(self):
+        ''' Создаёт базу юзеров, если такой нет. '''
         try:
             query = ('CREATE TABLE IF NOT EXISTS users('
                      'user_id INTEGER PRIMARY KEY,'
                      'user_name TEXT,'
-                     'referrer_id INTEGER);')
+                     'ref_id INTEGER);')
             self.cur.execute(query)
             self.connection.commit()
         except sqlite3.Error as ex:
@@ -35,13 +36,13 @@ class DataBase:
     def add_user(self,
                  user_id,
                  user_name,
-                 refferer_id,):
+                 referrer_id,):
         ''' Создаёт нового пользователя. '''
         with self.connection:
             return self.cur.execute('''
-                INSERT INTO users ('user_id', 'user_name', ‘refferer_id’)
+                INSERT INTO users ('user_id', ‘ref_id’)
                 VALUES (?, ?, ?);
-            ''', (user_id, user_name, refferer_id))
+            ''', (user_id, user_name, referrer_id))
     
     def get_users(self):
         ''' Запрос данных пользователя. '''
@@ -63,7 +64,7 @@ class DataBase:
             return self.cur.execute('''
                 SELECT COUNT('user_id') as count 
                 FROM users 
-                WHERE referrer_id = ?;
+                WHERE ref_id = ?;
             ''', (user_id,)).fetchone()[0]
         
     def get_referals(self, user_id):
@@ -71,15 +72,21 @@ class DataBase:
             return self.cur.execute('''
                 SELECT user_id
                 FROM users 
-                WHERE referrer_id = ?;
+                WHERE ref_id = ?;
             ''', (user_id,)).fetchall()
 
     def get_top_users(self):
         with self.connection:
             return self.cur.execute('''
-                SELECT `referrer_id`, COUNT(*) AS `cnt`
+                SELECT `ref_id`, COUNT(*) AS `cnt`
                 FROM `users`
-                GROUP BY `referrer_id`
+                GROUP BY `ref_id`
                 ORDER BY `cnt` DESC
                 LIMIT 11
             ''').fetchall()
+        
+    def del_table(self):
+        with self.connection:
+            return self.cur.execute('''
+                DROP TABLE IF EXISTS users; 
+            ''')

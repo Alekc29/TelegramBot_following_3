@@ -48,7 +48,8 @@ async def get_profile(message: Message, bot: Bot):
             await message.answer('Произошла ошибка при обращении к базе.')
     else:
         await bot.send_message(message.from_user.id,
-                               f'Подпишитесь на канал. {CHANNEL_LINK}')
+                               f'Подпишитесь на канал. {CHANNEL_LINK}',
+                               reply_markup=ReplyKeyboardRemove)
 
 
 @router.message(F.text == 'Таблица лидеров')
@@ -73,7 +74,9 @@ async def get_stats(message: Message, bot: Bot):
             await message.answer('Произошла ошибка при обращении к базе.')
     else:
         await bot.send_message(message.from_user.id,
-                               f'Подпишитесь на канал. {CHANNEL_LINK}')
+                               f'Подпишитесь на канал. {CHANNEL_LINK}',
+                               reply_markup=ReplyKeyboardRemove)
+
 
 @router.message(F.text == 'Пригласить друзей')
 async def get_stats(message: Message, bot: Bot):
@@ -85,4 +88,5 @@ async def get_stats(message: Message, bot: Bot):
         await message.delete()
     else:
         await bot.send_message(message.from_user.id,
-                               f'Подпишитесь на канал. {CHANNEL_LINK}')
+                               f'Подпишитесь на канал. {CHANNEL_LINK}',
+                               reply_markup=ReplyKeyboardRemove)
