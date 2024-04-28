@@ -40,7 +40,7 @@ class DataBase:
         ''' Создаёт нового пользователя. '''
         with self.connection:
             return self.cur.execute('''
-                INSERT INTO users ('user_id', ‘ref_id’)
+                INSERT INTO users ('user_id', 'user_name', 'ref_id')
                 VALUES (?, ?, ?);
             ''', (user_id, user_name, referrer_id))
     
@@ -74,6 +74,16 @@ class DataBase:
                 FROM users 
                 WHERE ref_id = ?;
             ''', (user_id,)).fetchall()
+        
+    def get_referals_two(self, user_id):
+        with self.connection:
+            return self.cur.execute('''
+                SELECT user_id
+                FROM users
+                WHERE ref_id = (SELECT user_id
+                                FROM users
+                                WHERE ref_id = ?);
+            ''', (user_id)).fetchall()
 
     def get_top_users(self):
         with self.connection:

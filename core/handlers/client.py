@@ -3,12 +3,10 @@ from datetime import datetime
 
 from aiogram import Bot, F, Router
 from aiogram.filters import Command
-from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from core.keyboards.replykey import client_profile
-from core.utils.class_fsm import FSMTown, FSMWish
 from core.utils.data_base import DataBase
 from config import DEV_ID, CHANNEL_ID, BOT_NAME, CHANNEL_LINK
 
