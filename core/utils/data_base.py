@@ -36,7 +36,7 @@ class DataBase:
 
     def add_user(self,
                  user_id,
-                 user_name,
+                 user_name=None,
                  referrer_id=0,
                  rang=0):
         ''' Создаёт нового пользователя. '''

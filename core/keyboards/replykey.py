@@ -4,9 +4,16 @@ from aiogram.types import (KeyboardButton,
 admin = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text='/Рассылка'),
-            KeyboardButton(text='/Статистика'),
-            KeyboardButton(text='/Клиент'),
+            KeyboardButton(text='Рассылка'),
+            KeyboardButton(text='Статистика'),
+            
+        ],
+        [
+            KeyboardButton(text='Рассылка по топам'),
+            KeyboardButton(text='Клиент'),
+        ],
+        [
+            KeyboardButton(text='отмена'),
         ]
     ],
     resize_keyboard=True

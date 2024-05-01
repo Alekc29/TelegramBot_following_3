@@ -59,6 +59,8 @@ async def checked_correct(cq: CallbackQuery, bot: Bot):
                 lot.add_user(USER_ID,
                              USER_NAME,
                              REF_ID)
+                if not lot.user_exists(REF_ID):
+                    lot.add_user(REF_ID)
             else:
                 await bot.send_message(USER_ID, 'Вы уже были зарегистрированы.')
     else:
