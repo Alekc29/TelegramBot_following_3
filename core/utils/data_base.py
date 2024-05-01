@@ -13,8 +13,8 @@ class DataBase:
             query = ('CREATE TABLE IF NOT EXISTS users('
                      'user_id INTEGER PRIMARY KEY,'
                      'user_name TEXT,'
-                     
-                     'ref_id INTEGER);')
+                     'ref_id INTEGER,'
+                     'rang INTEGER);')
             self.cur.execute(query)
             self.connection.commit()
         except sqlite3.Error as ex:
@@ -72,20 +72,10 @@ class DataBase:
     def get_referals(self, user_id):
         with self.connection:
             return self.cur.execute('''
-                SELECT user_id
+                SELECT user_id, user_name
                 FROM users 
                 WHERE ref_id = ?;
             ''', (user_id,)).fetchall()
-        
-    def get_referals_two(self, user_id):
-        with self.connection:
-            return self.cur.execute('''
-                SELECT user_id
-                FROM users
-                WHERE ref_id = (SELECT user_id
-                                FROM users
-                                WHERE ref_id = ?);
-            ''', (user_id)).fetchall()
 
     def get_top_users(self):
         with self.connection:
@@ -98,6 +88,7 @@ class DataBase:
             ''').fetchall()
         
     def add_rang(self, user_id, rang):
+        ''' Изменяет ранг пользователя. '''
         with self.connection:
             return self.cur.execute('''
                 UPDATE users
@@ -108,7 +99,7 @@ class DataBase:
     def get_rang_ref(self, user_id):
         with self.connection:
             return self.cur.execute('''
-                SELECT SUM('rang') as sum
+                SELECT SUM(rang) as sum
                 FROM users 
                 WHERE ref_id = ?;
             ''', (user_id,)).fetchone()[0]

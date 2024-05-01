@@ -1,7 +1,4 @@
-﻿import re
-from datetime import datetime
-
-from aiogram import Bot, F, Router
+﻿from aiogram import Bot, F, Router
 from aiogram.filters import Command
 from aiogram.types import Message, ReplyKeyboardRemove
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -32,12 +29,18 @@ async def get_profile(message: Message, bot: Bot):
             count_referals = db.count_referals(message.from_user.id)
             count_follow = 0
             for user in referals_user:
-                if check_sub_channel(await bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user[0])):
-                    count_follow += 1
+                try:
+                    if check_sub_channel(await bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user[0])):
+                        count_follow += 1
+                except:
+                    await message.answer(f'Пользователь {user[1]} удален из телеграмма.')
+            db.add_rang(message.from_user.id,
+                        count_follow)
             rang = 0
-            rang = db.add_rang(message.from_user.id, count_follow)
-            rang += (db.get_rang_ref(message.from_user.id) // 2)
-            db.add_rang(message.from_user.id, rang)
+            rang = count_follow
+            rang += int(db.get_rang_ref(message.from_user.id) // 2)
+            db.add_rang(message.from_user.id,
+                        rang)
             await message.answer(f'Профиль: {message.from_user.first_name}\n'
                                  f'Количество приглашенных друзей: {count_referals}\n'
                                  f'Количество подписанных на канал друзей: {count_follow}\n'
@@ -66,9 +69,9 @@ async def get_stats(message: Message, bot: Bot):
             inc = 0
             for top_user in top_table:
                 inc += 1
-                list_top_table += f'\n{inc:<4} id: {top_user[0]:<16} ранг: {top_user[1]}'
+                list_top_table += f'\n{inc:<4} id: {top_user[0]:<14} ранг: {top_user[1]}'
             place_in_top = db.get_pos_rang_user(message.from_user.id)
-            await message.answer(f'Таблица лидеров: ```{list_top_table}```',
+            await message.answer(f'Таблица лидеров: ```{list_top_table}```'
                                  f'\nВаше место: {place_in_top}',
                                  reply_markup=client_profile, parse_mode='MarkdownV2')
             await message.delete()

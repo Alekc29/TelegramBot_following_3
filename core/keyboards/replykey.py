@@ -13,6 +13,7 @@ admin = ReplyKeyboardMarkup(
             KeyboardButton(text='Клиент'),
         ],
         [
+            KeyboardButton(text='Новая лотерея'),
             KeyboardButton(text='отмена'),
         ]
     ],
