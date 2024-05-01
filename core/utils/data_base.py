@@ -50,7 +50,7 @@ class DataBase:
         ''' Запрос данных пользователя. '''
         with self.connection:
             return self.cur.execute('''
-                SELECT user_id
+                SELECT user_id, user_name
                 FROM users;
             ''').fetchall()
 
@@ -122,6 +122,13 @@ class DataBase:
                                FROM users
                                WHERE user_id=?);
             ''', (user_id,)).fetchone()[0]
+
+    def del_user(self, user_id):
+        with self.connection:
+            return self.cur.execute('''
+                DELETE FROM users
+                WHERE user_id = ?; 
+            ''', (user_id,))
 
     def del_table(self):
         with self.connection:

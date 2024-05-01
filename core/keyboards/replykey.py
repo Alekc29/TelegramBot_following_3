@@ -29,3 +29,13 @@ client_profile = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True
 )
+
+client_en_profile = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text='Invite friends'),
+            KeyboardButton(text='Topboard'),
+        ]
+    ],
+    resize_keyboard=True
+)

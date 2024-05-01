@@ -1,10 +1,11 @@
 from aiogram import Bot, Router, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
 
-from config import DEV_ID
+from config import DEV_ID, CHANNEL_ID, ADMIN_ID
 from core.keyboards.replykey import admin
+from core.utils.export_database_csv import export_csv
 from core.utils.class_fsm import FSMPost, FSMPostTop
 from core.utils.data_base import DataBase
 
@@ -13,7 +14,7 @@ router = Router()
 
 @router.message(Command('moderator'))
 async def get_admin_keyboards(message: Message):
-    if message.from_user.id == DEV_ID:
+    if message.from_user.id in [DEV_ID, ADMIN_ID]:
         await message.answer('Что босс надо?',
                              reply_markup=admin)
         await message.delete()
@@ -25,7 +26,7 @@ async def get_admin_keyboards(message: Message):
 @router.message(F.text == 'Рассылка')
 async def mailing_post_bot(message: Message, state: FSMContext):
     ''' функция для получения сообщения для рассылки по всем пользователям. '''
-    if message.from_user.id == DEV_ID:
+    if message.from_user.id in [DEV_ID, ADMIN_ID]:
         await message.answer('Набери пост для рассылки по юзерам.')
         await message.delete()
         await state.set_state(FSMPost.post)
@@ -61,7 +62,7 @@ async def send_mailing_bot(message: Message,
                            bot: Bot,
                            state: FSMContext):
     ''' функция ловит сообщение для рассылки по всем пользователям. '''
-    if message.from_user.id == DEV_ID:
+    if message.from_user.id in [DEV_ID, ADMIN_ID]:
         db = DataBase('users.db')
         users = db.get_users()
         await send_message_to_users(users, message, bot)
@@ -73,15 +74,34 @@ async def send_mailing_bot(message: Message,
 
 @router.message(F.text == 'Статистика')
 async def get_statistics(message: Message):
-    if message.from_user.id == DEV_ID:
+    if message.from_user.id in [DEV_ID, ADMIN_ID]:
         db = DataBase('users.db')
-        await message.answer(f'Кол-во юзеров: {db.count_all_users()}')
-        await message.delete()
+        db_lot = DataBase('lot.db')
+        export_csv()
+        file = FSInputFile("users.csv")
+        try:
+            top_table = db_lot.get_top_rang_users()
+            count_all = db.count_all_users()
+            count_lot = db_lot.count_all_users()
+            list_top_table = ''
+            inc = 0
+            for top_user in top_table:
+                inc += 1
+                list_top_table += f'\n{inc:<4} id: {top_user[0]:<14} ранг: {top_user[1]}'
+            await message.answer(f'Таблица лидеров: ```{list_top_table}```'
+                                 f'\nКоличество юзеров в лотерее: {count_lot}'
+                                 f'\nКоличество юзеров в общей базе: {count_all}',
+                                 parse_mode='MarkdownV2')
+            await message.answer_document(file, caption='База лотереи')
+            await message.delete()
+        except Exception as ex:
+            print(ex)
+            await message.answer('Произошла ошибка при обращении к базе.')
 
 
 @router.message(F.text == 'Клиент')
 async def change_client_command(message: Message):
-    if message.from_user.id == DEV_ID:
+    if message.from_user.id in [DEV_ID, ADMIN_ID]:
         await message.answer('Вы перешли в клиентскую часть.',
                              reply_markup=ReplyKeyboardRemove())
         await message.delete()
@@ -90,7 +110,7 @@ async def change_client_command(message: Message):
 @router.message(F.text == 'Рассылка по топам')
 async def mailing_post_top_bot(message: Message, state: FSMContext):
     ''' функция для получения сообщения для рассылки по топам. '''
-    if message.from_user.id == DEV_ID:
+    if message.from_user.id in [DEV_ID, ADMIN_ID]:
         await message.answer('Набери пост для рассылки по топам.')
         await message.delete()
         await state.set_state(FSMPostTop.post_top)
@@ -101,7 +121,7 @@ async def send_top_mailing_bot(message: Message,
                            bot: Bot,
                            state: FSMContext):
     ''' функция ловит сообщение для рассылки по топам. '''
-    if message.from_user.id == DEV_ID:
+    if message.from_user.id in [DEV_ID, ADMIN_ID]:
         db = DataBase('lot.db')
         users = db.get_top_rang_users()
         await send_message_to_users(users, message, bot)
@@ -113,7 +133,7 @@ async def send_top_mailing_bot(message: Message,
 
 @router.message(F.text == 'Новая лотерея')
 async def change_client_command(message: Message):
-    if message.from_user.id == DEV_ID:
+    if message.from_user.id in [DEV_ID, ADMIN_ID]:
         try:
             db = DataBase('lot.db')
             db.del_table()
@@ -121,3 +141,17 @@ async def change_client_command(message: Message):
             await message.delete()
         except:
             await message.answer('Произошла ошибка при удалении базы.')
+
+
+@router.message(Command('del_bot'))
+async def del_bot_base(message: Message, bot: Bot):
+    if message.from_user.id in [DEV_ID, ADMIN_ID]:
+        db = DataBase('users.db')
+        users = db.get_users()
+        for user in users:
+            try:
+                await bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user[0])
+            except:
+                db.del_user(user[0])
+                await message.answer(f'Удалён юзер: {user[1]} id: {user[0]}')
+        await message.delete()
