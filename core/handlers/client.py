@@ -3,10 +3,10 @@
 from aiogram import Bot, F, Router
 from aiogram.filters import Command
 from aiogram.types import (Message,
-                           ReplyKeyboardRemove,
                            InlineKeyboardButton,
                            InlineKeyboardMarkup,
-                           CallbackQuery)
+                           CallbackQuery,
+                           ReplyKeyboardRemove)
 from aiogram.fsm.context import FSMContext
 
 from core.keyboards.replykey import client_profile, client_en_profile
@@ -89,7 +89,7 @@ async def get_start(message: Message, bot: Bot):
 
 
 def check_sub_channel(chat_member):
-    if chat_member.status != 'ChatMemberStatus.LEFT':
+    if chat_member.status != 'left':
         return True
     else:
         return False
@@ -107,27 +107,33 @@ async def get_profile(message: Message, bot: Bot):
             referals_user = db.get_referals(message.from_user.id)
             count_referals = db.count_referals(message.from_user.id)
             count_follow = 0
-            for user in referals_user:
-                try:
-                    if check_sub_channel(await bot.get_chat_member(chat_id=CHANNEL_ID,
-                                                                   user_id=user[0])):
-                        count_follow += 1
-                except:
-                    db.del_user(user[0])
-                    if LANG == 'RU':
-                        await message.answer(
-                            f'Пользователь {user[1]} удален из телеграмма.'
-                        )
-                    else:
-                        await message.answer(
-                            f'The user {user[1]} has been deleted from telegram.'
-                        )
-            db.add_rang(message.from_user.id, count_follow)
             rang = 0
-            rang = count_follow
-            rang += int(db.get_rang_ref(message.from_user.id) // 2)
-            db.add_rang(message.from_user.id,
-                        rang)
+            print(len(referals_user))
+            if len(referals_user) > 0:
+                for user in referals_user:
+                    try:
+                        if check_sub_channel(
+                            await bot.get_chat_member(
+                                chat_id=CHANNEL_ID,
+                                user_id=user[0]
+                            )
+                        ):
+                            count_follow += 1
+                    except:
+                        db.del_user(user[0])
+                        if LANG == 'RU':
+                            await message.answer(
+                                f'Пользователь {user[1]} удален из телеграмма.'
+                            )
+                        else:
+                            await message.answer(
+                                f'The user {user[1]} has been deleted from telegram.'
+                            )
+                db.add_rang(message.from_user.id, count_follow)
+                rang = count_follow
+                rang += int(db.get_rang_ref(message.from_user.id) // 2)
+                db.add_rang(message.from_user.id,
+                            rang)
             if LANG == 'RU':
                 await message.answer(
                     f'Профиль: {message.from_user.first_name}\n'
@@ -155,13 +161,11 @@ async def get_profile(message: Message, bot: Bot):
                 await message.answer('An error occurred while accessing the database.')
     else:
         if LANG == 'RU':
-            await bot.send_message(message.from_user.id,
-                                   f'Подпишитесь на канал. {CHANNEL_LINK}',
-                                   reply_markup=ReplyKeyboardRemove)
+            await message.answer(f'Подпишитесь на канал. {CHANNEL_LINK}',
+                                 reply_markup=ReplyKeyboardRemove())
         else:
-            await bot.send_message(message.from_user.id,
-                                   f'Subscribe to the channel. {CHANNEL_LINK}',
-                                   reply_markup=ReplyKeyboardRemove)
+            await message.answer(f'Subscribe to the channel. {CHANNEL_LINK}',
+                                 reply_markup=ReplyKeyboardRemove())
 
 
 @router.message(F.text.in_(['Таблица лидеров', 'Topboard']))
@@ -196,13 +200,11 @@ async def get_stats(message: Message, bot: Bot):
                 await message.answer('An error occurred while accessing the database.')
     else:
         if LANG == 'RU':
-            await bot.send_message(message.from_user.id,
-                                   f'Подпишитесь на канал. {CHANNEL_LINK}',
-                                   reply_markup=ReplyKeyboardRemove)
+            await message.answer(f'Подпишитесь на канал. {CHANNEL_LINK}',
+                                 reply_markup=ReplyKeyboardRemove())
         else:
-            await bot.send_message(message.from_user.id,
-                                   f'Subscribe to the channel. {CHANNEL_LINK}',
-                                   reply_markup=ReplyKeyboardRemove)
+            await message.answer(f'Subscribe to the channel. {CHANNEL_LINK}',
+                                 reply_markup=ReplyKeyboardRemove())
 
 
 @router.message(F.text.in_(['Пригласить друзей', 'Invite friends']))
@@ -220,10 +222,8 @@ async def get_stats(message: Message, bot: Bot):
         await message.delete()
     else:
         if LANG == 'RU':
-            await bot.send_message(message.from_user.id,
-                                   f'Подпишитесь на канал. {CHANNEL_LINK}',
-                                   reply_markup=ReplyKeyboardRemove)
+            await message.answer(f'Подпишитесь на канал. {CHANNEL_LINK}',
+                                 reply_markup=ReplyKeyboardRemove())
         else:
-            await bot.send_message(message.from_user.id,
-                                   f'Subscribe to the channel. {CHANNEL_LINK}',
-                                   reply_markup=ReplyKeyboardRemove)
+            await message.answer(f'Subscribe to the channel. {CHANNEL_LINK}',
+                                 reply_markup=ReplyKeyboardRemove())

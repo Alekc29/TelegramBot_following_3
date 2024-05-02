@@ -50,7 +50,7 @@ async def send_message_to_users(users, message: Message, bot: Bot):
         try:
             await bot.send_message(user[0],
                                    f'{message.text}')
-        except Exception:
+        except:
             await bot.send_message(
                 DEV_ID,
                 f'Произошла ошибка при отправке сообщения юзеру: {user[0]}'

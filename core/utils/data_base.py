@@ -43,7 +43,7 @@ class DataBase:
         with self.connection:
             return self.cur.execute('''
                 INSERT INTO users ('user_id', 'user_name', 'ref_id')
-                VALUES (?, ?, ?, ?);
+                VALUES (?, ?, ?);
             ''', (user_id, user_name, referrer_id))
     
     def get_users(self):
