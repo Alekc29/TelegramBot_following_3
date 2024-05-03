@@ -3,7 +3,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
 
-from config import DEV_ID, CHANNEL_ID, ADMIN_ID
+from config import DEV_ID, CHANNEL_ID, ADMIN_ID, BASE_USERS, BASE_LOT
 from core.keyboards.replykey import admin
 from core.utils.export_database_csv import export_csv
 from core.utils.class_fsm import FSMPost, FSMPostTop
@@ -63,7 +63,7 @@ async def send_mailing_bot(message: Message,
                            state: FSMContext):
     ''' функция ловит сообщение для рассылки по всем пользователям. '''
     if message.from_user.id in [DEV_ID, ADMIN_ID]:
-        db = DataBase('users.db')
+        db = DataBase(BASE_USERS)
         users = db.get_users()
         await send_message_to_users(users, message, bot)
         await message.answer(
@@ -75,8 +75,8 @@ async def send_mailing_bot(message: Message,
 @router.message(F.text == 'Статистика')
 async def get_statistics(message: Message):
     if message.from_user.id in [DEV_ID, ADMIN_ID]:
-        db = DataBase('users.db')
-        db_lot = DataBase('lot.db')
+        db = DataBase(BASE_USERS)
+        db_lot = DataBase(BASE_LOT)
         export_csv()
         file = FSInputFile("users.csv")
         try:
@@ -122,7 +122,7 @@ async def send_top_mailing_bot(message: Message,
                            state: FSMContext):
     ''' функция ловит сообщение для рассылки по топам. '''
     if message.from_user.id in [DEV_ID, ADMIN_ID]:
-        db = DataBase('lot.db')
+        db = DataBase(BASE_LOT)
         users = db.get_top_rang_users()
         await send_message_to_users(users, message, bot)
         await message.answer(
@@ -135,7 +135,7 @@ async def send_top_mailing_bot(message: Message,
 async def change_client_command(message: Message):
     if message.from_user.id in [DEV_ID, ADMIN_ID]:
         try:
-            db = DataBase('lot.db')
+            db = DataBase(BASE_LOT)
             db.del_table()
             await message.answer('База старой лотереи удалена. Новая база создана.')
             await message.delete()
@@ -146,7 +146,7 @@ async def change_client_command(message: Message):
 @router.message(Command('del_bot'))
 async def del_bot_base(message: Message, bot: Bot):
     if message.from_user.id in [DEV_ID, ADMIN_ID]:
-        db = DataBase('users.db')
+        db = DataBase(BASE_USERS)
         users = db.get_users()
         for user in users:
             try:

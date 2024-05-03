@@ -1,0 +1,8 @@
+venv
+users.db
+users.csv
+lot.db
+lot_users.db
+.env
+.git
+__pycache__

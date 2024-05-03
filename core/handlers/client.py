@@ -11,7 +11,9 @@ from aiogram.fsm.context import FSMContext
 
 from core.keyboards.replykey import client_profile, client_en_profile
 from core.utils.data_base import DataBase
-from config import CHANNEL_ID, BOT_NAME, CHANNEL_LINK
+from config import (CHANNEL_ID, BOT_NAME,
+                    CHANNEL_LINK, BASE_USERS,
+                    BASE_LOT)
 
 router = Router()
 
@@ -57,12 +59,12 @@ async def checked_correct(cq: CallbackQuery, bot: Bot):
         await cq.message.answer('Верно! Capcha пройдена.\n'
                                 'Для продолжения работы перейдите в свой профиль.')
         if REF_ID != USER_ID:
-            db = DataBase('users.db')
+            db = DataBase(BASE_USERS)
             if not db.user_exists(USER_ID):
                 db.add_user(USER_ID,
                             USER_NAME,
                             REF_ID)
-                lot = DataBase('lot.db')
+                lot = DataBase(BASE_LOT)
                 lot.add_user(USER_ID,
                              USER_NAME,
                              REF_ID)
@@ -88,6 +90,22 @@ async def get_start(message: Message, bot: Bot):
     await message.delete()
 
 
+@router.message(Command(commands=['help']))
+async def get_start(message: Message, bot: Bot):
+    global LANG
+    if LANG == 'RU':
+        await message.answer(
+            'Если возникает ошибка при работе с базой бота, наберите /start. '
+            'Если ошибка сохраниться, сообщите администратору.'
+        )
+    else:
+        await message.answer(
+            'If an error occurs when working with the bot database, type /start. '
+            'If the error persists, inform the administrator.'
+        )
+    await message.delete()
+
+
 def check_sub_channel(chat_member):
     if chat_member.status != 'left':
         return True
@@ -101,7 +119,7 @@ async def get_profile(message: Message, bot: Bot):
     global LANG
     if check_sub_channel(await bot.get_chat_member(chat_id=CHANNEL_ID,
                                                    user_id=message.from_user.id)):
-        db = DataBase('lot.db')
+        db = DataBase(BASE_LOT)
         try:
             all_users = db.count_all_users()
             referals_user = db.get_referals(message.from_user.id)
@@ -174,7 +192,7 @@ async def get_stats(message: Message, bot: Bot):
     global LANG
     if check_sub_channel(await bot.get_chat_member(chat_id=CHANNEL_ID,
                          user_id=message.from_user.id)):
-        db = DataBase('lot.db')
+        db = DataBase(BASE_LOT)
         try:
             top_table = db.get_top_rang_users()
             list_top_table = ''

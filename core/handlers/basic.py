@@ -1,11 +1,5 @@
-﻿import random
-
-from aiogram import Bot, F, Router
-from aiogram.filters import Command
-from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from aiogram.fsm.context import FSMContext
-
-from core.utils.data_base import DataBase
+﻿from aiogram import F, Router
+from aiogram.types import Message
 
 router = Router()
 
@@ -20,5 +14,3 @@ async def get_echo(message: Message):
     await message.answer(
         'Такой команды я не знаю! В меню есть все доступные команды.'
     )
-
-
