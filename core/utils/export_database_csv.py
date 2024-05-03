@@ -1,8 +1,8 @@
-import sqlite3
 import csv
+import sqlite3
 
-# Подключение к базе данных SQLite
-def export_csv():
+
+def export_csv():  # Подключение к базе данных SQLite
     conn = sqlite3.connect('lot.db')
     cursor = conn.cursor()
     # Выполнить SQL-запрос

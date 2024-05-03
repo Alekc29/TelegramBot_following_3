@@ -1,13 +1,13 @@
-from aiogram import Bot, Router, F
+from aiogram import Bot, F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
+from aiogram.types import FSInputFile, Message, ReplyKeyboardRemove
 
-from config import DEV_ID, CHANNEL_ID, ADMIN_ID, BASE_USERS, BASE_LOT
+from config import ADMIN_ID, BASE_LOT, BASE_USERS, CHANNEL_ID, DEV_ID
 from core.keyboards.replykey import admin
-from core.utils.export_database_csv import export_csv
 from core.utils.class_fsm import FSMPost, FSMPostTop
 from core.utils.data_base import DataBase
+from core.utils.export_database_csv import export_csv
 
 router = Router()
 
@@ -50,7 +50,7 @@ async def send_message_to_users(users, message: Message, bot: Bot):
         try:
             await bot.send_message(user[0],
                                    f'{message.text}')
-        except:
+        except Exception:
             await bot.send_message(
                 DEV_ID,
                 f'Произошла ошибка при отправке сообщения юзеру: {user[0]}'
@@ -87,11 +87,15 @@ async def get_statistics(message: Message):
             inc = 0
             for top_user in top_table:
                 inc += 1
-                list_top_table += f'\n{inc:<4} id: {top_user[0]:<14} ранг: {top_user[1]}'
-            await message.answer(f'Таблица лидеров: ```{list_top_table}```'
-                                 f'\nКоличество юзеров в лотерее: {count_lot}'
-                                 f'\nКоличество юзеров в общей базе: {count_all}',
-                                 parse_mode='MarkdownV2')
+                list_top_table += (f'\n{inc:<4} '
+                                   f'id: {top_user[0]:<14} '
+                                   f'ранг: {top_user[1]}')
+            await message.answer(
+                f'Таблица лидеров: ```{list_top_table}```'
+                f'\nКоличество юзеров в лотерее: {count_lot}'
+                f'\nКоличество юзеров в общей базе: {count_all}',
+                parse_mode='MarkdownV2'
+            )
             await message.answer_document(file, caption='База лотереи')
             await message.delete()
         except Exception as ex:
@@ -118,8 +122,8 @@ async def mailing_post_top_bot(message: Message, state: FSMContext):
 
 @router.message(FSMPostTop.post_top)
 async def send_top_mailing_bot(message: Message,
-                           bot: Bot,
-                           state: FSMContext):
+                               bot: Bot,
+                               state: FSMContext):
     ''' функция ловит сообщение для рассылки по топам. '''
     if message.from_user.id in [DEV_ID, ADMIN_ID]:
         db = DataBase(BASE_LOT)
@@ -132,14 +136,16 @@ async def send_top_mailing_bot(message: Message,
 
 
 @router.message(F.text == 'Новая лотерея')
-async def change_client_command(message: Message):
+async def start_new_lot(message: Message):
     if message.from_user.id in [DEV_ID, ADMIN_ID]:
         try:
             db = DataBase(BASE_LOT)
             db.del_table()
-            await message.answer('База старой лотереи удалена. Новая база создана.')
+            await message.answer(
+                'База старой лотереи удалена. Новая база создана.'
+            )
             await message.delete()
-        except:
+        except Exception:
             await message.answer('Произошла ошибка при удалении базы.')
 
 
@@ -151,7 +157,7 @@ async def del_bot_base(message: Message, bot: Bot):
         for user in users:
             try:
                 await bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user[0])
-            except:
+            except Exception:
                 db.del_user(user[0])
                 await message.answer(f'Удалён юзер: {user[1]} id: {user[0]}')
         await message.delete()

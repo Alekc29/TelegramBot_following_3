@@ -45,7 +45,7 @@ class DataBase:
                 INSERT INTO users ('user_id', 'user_name', 'ref_id')
                 VALUES (?, ?, ?);
             ''', (user_id, user_name, referrer_id))
-    
+
     def get_users(self):
         ''' Запрос данных пользователя. '''
         with self.connection:
@@ -64,16 +64,16 @@ class DataBase:
     def count_referals(self, user_id):
         with self.connection:
             return self.cur.execute('''
-                SELECT COUNT('user_id') as count 
-                FROM users 
+                SELECT COUNT('user_id') as count
+                FROM users
                 WHERE ref_id = ?;
             ''', (user_id,)).fetchone()[0]
-        
+
     def get_referals(self, user_id):
         with self.connection:
             return self.cur.execute('''
                 SELECT user_id, user_name
-                FROM users 
+                FROM users
                 WHERE ref_id = ?;
             ''', (user_id,)).fetchall()
 
@@ -86,7 +86,7 @@ class DataBase:
                 ORDER BY cnt DESC
                 LIMIT 11
             ''').fetchall()
-        
+
     def add_rang(self, user_id, rang):
         ''' Изменяет ранг пользователя. '''
         with self.connection:
@@ -95,15 +95,15 @@ class DataBase:
                 SET rang = ?
                 WHERE user_id = ?;
             ''', (rang, user_id,))
-        
+
     def get_rang_ref(self, user_id):
         with self.connection:
             return self.cur.execute('''
                 SELECT SUM(rang) as sum
-                FROM users 
+                FROM users
                 WHERE ref_id = ?;
             ''', (user_id,)).fetchone()[0]
-        
+
     def get_top_rang_users(self):
         with self.connection:
             return self.cur.execute('''
@@ -112,12 +112,12 @@ class DataBase:
                 ORDER BY rang DESC
                 LIMIT 10
             ''').fetchall()
-        
+
     def get_pos_rang_user(self, user_id):
         with self.connection:
             return self.cur.execute('''
                 SELECT COUNT(*) AS rank
-                FROM users 
+                FROM users
                 WHERE rang >= (SELECT rang
                                FROM users
                                WHERE user_id=?);
@@ -127,11 +127,11 @@ class DataBase:
         with self.connection:
             return self.cur.execute('''
                 DELETE FROM users
-                WHERE user_id = ?; 
+                WHERE user_id = ?;
             ''', (user_id,))
 
     def del_table(self):
         with self.connection:
             return self.cur.execute('''
-                DROP TABLE IF EXISTS users; 
+                DROP TABLE IF EXISTS users;
             ''')

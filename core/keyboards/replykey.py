@@ -1,12 +1,10 @@
-from aiogram.types import (KeyboardButton,
-                           ReplyKeyboardMarkup,)
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
 admin = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text='Рассылка'),
             KeyboardButton(text='Статистика'),
-            
         ],
         [
             KeyboardButton(text='Рассылка по топам'),
