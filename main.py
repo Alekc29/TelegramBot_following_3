@@ -5,7 +5,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.methods import DeleteWebhook
 
-from config import BOT_TOKEN, DEV_ID
+from config import ADMIN_ID, BOT_TOKEN, DEV_ID
 from core.handlers import admin, basic, client
 from core.utils.commands import set_commands_main
 
@@ -13,10 +13,12 @@ from core.utils.commands import set_commands_main
 async def start_bot(bot: Bot):
     await set_commands_main(bot)
     await bot.send_message(DEV_ID, text='Бот запущен!')
+    await bot.send_message(ADMIN_ID, text='Бот запущен!')
 
 
 async def stop_bot(bot: Bot):
     await bot.send_message(DEV_ID, text='Бот остановлен!')
+    await bot.send_message(ADMIN_ID, text='Бот остановлен!')
 
 
 async def start():
