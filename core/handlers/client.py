@@ -48,8 +48,16 @@ async def get_start(message: Message, bot: Bot, state: FSMContext):
     REF_ID = str(start_command[7:])
     USER_ID = message.from_user.id
     USER_NAME = message.from_user.first_name
-    await message.answer(f'Выбери: "{random.choice(EMOJIS)}"',
-                         reply_markup=created_kbr(EMOJIS))
+    if LANG == 'RU':
+        await message.answer('Подтвердите что вы не робот!\n'
+                             'Выберите подходящий смайл: '
+                             f'"{random.choice(EMOJIS)}"',
+                             reply_markup=created_kbr(EMOJIS))
+    else:
+        await message.answer('Confirm that you are not a robot!\n'
+                             'Choose the appropriate smile: '
+                             f'"{random.choice(EMOJIS)}"',
+                             reply_markup=created_kbr(EMOJIS))
 
 
 @router.callback_query(F.data.in_(EMOJIS))
@@ -57,10 +65,16 @@ async def checked_correct(cq: CallbackQuery, bot: Bot):
     global REF_ID, USER_ID, USER_NAME
     capch_color = cq.message.text.split('"')[1]
     if (cq.data == capch_color):
-        await cq.message.answer(
-            'Верно! Capcha пройдена.\n'
-            'Для продолжения работы перейдите в свой профиль.'
-        )
+        if LANG == 'RU':
+            await cq.message.answer(
+                'Верно! Capcha пройдена.\n'
+                'Для продолжения работы перейдите в свой профиль.'
+            )
+        else:
+            await cq.message.answer(
+                'Success.\n'
+                'To continue working, go to your profile.'
+            )
         if REF_ID != USER_ID:
             db = DataBase(BASE_USERS)
             if not db.user_exists(USER_ID):
@@ -74,11 +88,23 @@ async def checked_correct(cq: CallbackQuery, bot: Bot):
                 if not lot.user_exists(REF_ID):
                     lot.add_user(REF_ID)
             else:
-                await bot.send_message(USER_ID,
-                                       'Вы уже были зарегистрированы.')
+                if LANG == 'RU':
+                    await bot.send_message(USER_ID,
+                                           'Вы уже были зарегистрированы.')
+                else:
+                    await bot.send_message(USER_ID,
+                                           'You have already been registered.')
     else:
-        await cq.message.answer(f'Другой символ! "{random.choice(EMOJIS)}"',
-                                reply_markup=created_kbr(EMOJIS))
+        if LANG == 'RU':
+            await cq.message.answer(
+                f'Другой символ! "{random.choice(EMOJIS)}"',
+                reply_markup=created_kbr(EMOJIS)
+            )
+        else:
+            await cq.message.answer(
+                f'Incorrect! Another symbol:  "{random.choice(EMOJIS)}"',
+                reply_markup=created_kbr(EMOJIS)
+            )
     await cq.answer()
 
 
