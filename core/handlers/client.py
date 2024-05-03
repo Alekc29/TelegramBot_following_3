@@ -117,7 +117,7 @@ def check_sub_channel(chat_member):
     return False
 
 
-@router.message(Command('profile'))
+@router.message(Command(commands=['profile']))
 async def get_profile(message: Message, bot: Bot):
     ''' Выдаёт информацию из базы пользователю. '''
     global LANG
